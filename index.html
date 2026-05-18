@@ -2181,13 +2181,22 @@ function genMaze(size=9, seed=42) {
   let r = seed;
   function rng(){r=(r*1664525+1013904223)&0xffffffff;return Math.abs(r)/0xffffffff;}
 
+  // Fisher-Yates shuffle — vraiment aléatoire
+  function shuffle(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(rng() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
   const W=size,H=size;
   const visited=Array(H).fill(null).map(()=>Array(W).fill(false));
   const walls={h:Array(H+1).fill(null).map(()=>Array(W).fill(true)),v:Array(H).fill(null).map(()=>Array(W+1).fill(true))};
 
   function carve(x,y){
     visited[y][x]=true;
-    const dirs=[[0,-1],[1,0],[0,1],[-1,0]].sort(()=>rng()-.5);
+    const dirs = shuffle([[0,-1],[1,0],[0,1],[-1,0]]);
     for(const[dx,dy]of dirs){
       const nx=x+dx,ny=y+dy;
       if(nx>=0&&nx<W&&ny>=0&&ny<H&&!visited[ny][nx]){
@@ -2200,6 +2209,7 @@ function genMaze(size=9, seed=42) {
     }
   }
   carve(0,0);
+
   const cs=16,cw=W*cs+1,ch=H*cs+1;
   let svg=`<svg width="${cw}" height="${ch}" viewBox="0 0 ${cw} ${ch}" xmlns="http://www.w3.org/2000/svg" style="display:block;margin:4px auto;border:.5px solid #aaa;">`;
   svg+=`<rect width="${cw}" height="${ch}" fill="#f9f5ed"/>`;
@@ -3345,6 +3355,7 @@ const PLEINES_LUNES = [
   new Date(2026,4,31),  // 31 mai
   new Date(2026,5,30),  // 30 juin
   new Date(2026,6,29),  // 29 juillet
+  new Date(2026,7,28),  // 28 août
   new Date(2026,8,26),  // 26 septembre
   new Date(2026,9,26),  // 26 octobre
   new Date(2026,10,24), // 24 novembre
@@ -3370,11 +3381,11 @@ async function generateTicket() {
   status.textContent='récupération météo Montpellier...';
   const w=await fetchWeather();
 
-     const mystere = getTicketMystere(now);
-     if (mystere) {
-       // Remplace le message du jour par le message cryptique
-       // On injecte dans le HTML avec un style "panne"
-     }
+  const mystere = getTicketMystere(now);
+if (mystere) {
+  // Remplace le message du jour par le message cryptique
+  // On injecte dans le HTML avec un style "panne"
+}
 
   const editionSpeciale = getEditionSpeciale(now, w.code, w.temp);
 if (editionSpeciale) {
@@ -3991,11 +4002,11 @@ GUS te souhaite une belle journée.
 Mange bien. Sois doux avec les gens que tu aimes.`,
     ascii: `
       *
-     ***
-    *****
-   *  |  *
-  *   |   *
- * sapin  *
+     *✦*
+    *0***
+   *✦*|**0
+  ****|****
+ ✦*0**|**✦**
       |
   =========
      NOËL`,
@@ -4044,9 +4055,9 @@ Mais tu peux décider que si.`,
     ascii: `
   ╔═══════════════╗
   ║  T I C K E T  ║
-  ║     R A R E   ║
+  ║    R A R E    ║
   ║               ║
-  ║   ✦  ✦  ✦   ║
+  ║    ✦  ✦  ✦    ║
   ║               ║
   ╚═══════════════╝`,
     asciiLabel: 'TICKET RARE · SÉRIE LIMITÉE',
